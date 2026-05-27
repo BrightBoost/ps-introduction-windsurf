@@ -79,15 +79,18 @@ def delete_application(application_id: int) -> bool:
 
 
 # questionable variable names
-def proc(apps, id, s, n=None):
-    for i in range(len(apps)):
-        if apps[i]["id"] == id:
-            if s not in ["applied", "interviewing", "offer", "rejected"]:
-                return None
-            apps[i]["status"] = s
-            if n != None:
-                apps[i]["notes"] = n
-            return apps[i]
+def update_application_status(applications, application_id, status, notes=None):
+    valid_statuses = ["applied", "interviewing", "offer", "rejected"]
+    if status not in valid_statuses:
+        return None
+    
+    for application in applications:
+        if application["id"] == application_id:
+            application["status"] = status
+            if notes is not None:
+                application["notes"] = notes
+            return application
+    
     return None
 
 
@@ -97,5 +100,4 @@ def get_applications_by_status(apps, status):
     for app in apps:
         if app["status"] == status:
             result.append(app)
-            return result
     return result
