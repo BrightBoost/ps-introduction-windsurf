@@ -80,6 +80,19 @@ def delete_application(application_id: int) -> bool:
 
 # questionable variable names
 def update_application_status(applications, application_id, status, notes=None):
+    """Update the status of a job application.
+
+    Args:
+        applications: A list of application dictionaries.
+        application_id: The unique identifier of the application to update.
+        status: The new status to set. Must be one of "applied",
+            "interviewing", "offer", or "rejected".
+        notes: Optional notes to attach to the application.
+
+    Returns:
+        The updated application dictionary, or None if the application
+        was not found or the status is invalid.
+    """
     valid_statuses = ["applied", "interviewing", "offer", "rejected"]
     if status not in valid_statuses:
         return None
@@ -96,6 +109,15 @@ def update_application_status(applications, application_id, status, notes=None):
 
 # intention: filter applications by status
 def get_applications_by_status(apps, status):
+    """Filter applications by their status.
+
+    Args:
+        apps: A list of application dictionaries.
+        status: The status to filter by.
+
+    Returns:
+        A list of application dictionaries matching the given status.
+    """
     result = []
     for app in apps:
         if app["status"] == status:
