@@ -76,3 +76,26 @@ def delete_application(application_id: int) -> bool:
             _applications.pop(i)
             return True
     return False
+
+
+# questionable variable names
+def proc(apps, id, s, n=None):
+    for i in range(len(apps)):
+        if apps[i]["id"] == id:
+            if s not in ["applied", "interviewing", "offer", "rejected"]:
+                return None
+            apps[i]["status"] = s
+            if n != None:
+                apps[i]["notes"] = n
+            return apps[i]
+    return None
+
+
+# intention: filter applications by status
+def get_applications_by_status(apps, status):
+    result = []
+    for app in apps:
+        if app["status"] == status:
+            result.append(app)
+            return result
+    return result
