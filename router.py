@@ -1,6 +1,6 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 
-from models import JobApplication, JobApplicationCreate, JobApplicationUpdate
+from models import JobApplication, JobApplicationCreate, JobApplicationUpdate, ApplicationStatus
 import services
 
 router = APIRouter(prefix="/applications", tags=["applications"])
@@ -12,7 +12,9 @@ def create_application(data: JobApplicationCreate):
 
 
 @router.get("/", response_model=list[JobApplication])
-def list_applications():
+def list_applications(status: ApplicationStatus | None = Query(default=None, description="Filter by application status")):
+    if status:
+        return services.get_applications_by_status(services.get_all_applications(), status)
     return services.get_all_applications()
 
 

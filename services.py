@@ -1,4 +1,4 @@
-from models import JobApplication, JobApplicationCreate, JobApplicationUpdate
+from models import JobApplication, JobApplicationCreate, JobApplicationUpdate, ApplicationStatus
 
 _applications: list[JobApplication] = []
 _next_id: int = 1
@@ -108,18 +108,18 @@ def update_application_status(applications, application_id, status, notes=None):
 
 
 # intention: filter applications by status
-def get_applications_by_status(apps, status):
+def get_applications_by_status(apps: list[JobApplication], status: ApplicationStatus) -> list[JobApplication]:
     """Filter applications by their status.
 
     Args:
-        apps: A list of application dictionaries.
+        apps: A list of JobApplication objects.
         status: The status to filter by.
 
     Returns:
-        A list of application dictionaries matching the given status.
+        A list of JobApplication objects matching the given status.
     """
     result = []
     for app in apps:
-        if app["status"] == status:
+        if app.status == status:
             result.append(app)
     return result
