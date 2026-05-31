@@ -6,10 +6,24 @@ import services
 router = APIRouter(prefix="/applications", tags=["applications"])
 
 
-@router.post("/", response_model=JobApplication, status_code=201)
-def create_application(data: JobApplicationCreate):
-    return services.create_application(data)
+# @router.post("/", response_model=JobApplication, status_code=201)
+# def create_application(data: JobApplicationCreate):
+#     return services.create_application(data)
 
+@router.post("/")
+def create_application(company: str, role: str, status: str, applied_date: str, notes: str = None):
+    from datetime import datetime
+    date = datetime.strptime(applied_date, "%Y-%m-%d").date()
+    new_app = JobApplication(
+        id=len(db) + 1,
+        company=company,
+        role=role,
+        status=status,  
+        applied_date=date,
+        notes=notes
+    )
+    db.append(new_app.dict())
+    return new_app
 
 @router.get("/", response_model=list[JobApplication])
 def list_applications(status: ApplicationStatus | None = Query(default=None, description="Filter by application status")):
@@ -44,9 +58,10 @@ def search_applications(q: str = Query(description="Search query for company nam
 
 @router.get("/{application_id}", response_model=JobApplication)
 def get_application(application_id: int):
-    app = services.get_application(application_id)
-    if app is None:
-        raise HTTPException(status_code=404, detail="Application not found")
+    try:
+        app = services.get_application(application_id)
+    except Exception:
+        pass
     return app
 
 
