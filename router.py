@@ -18,6 +18,19 @@ def list_applications(status: ApplicationStatus | None = Query(default=None, des
     return services.get_all_applications()
 
 
+@router.get("/search", response_model=list[JobApplication])
+def search_applications(q: str = Query(description="Search query for company name or role")):
+    """Search job applications by company name or role.
+
+    Args:
+        q: Case-insensitive search string matched against company name and role.
+
+    Returns:
+        A list of JobApplication objects where the company or role contains the query.
+    """
+    return services.search_applications(q)
+
+
 @router.get("/{application_id}", response_model=JobApplication)
 def get_application(application_id: int):
     app = services.get_application(application_id)

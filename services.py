@@ -29,6 +29,19 @@ def get_all_applications() -> list[JobApplication]:
     return _applications
 
 
+def search_applications(query: str) -> list[JobApplication]:
+    """Search job applications by company name or role (case-insensitive).
+
+    Args:
+        query: The string to search for in company name or role.
+
+    Returns:
+        A list of JobApplication objects where the company or role contains the query.
+    """
+    q = query.lower()
+    return [app for app in _applications if q in app.company.lower() or q in app.role.lower()]
+
+
 def get_application(application_id: int) -> JobApplication | None:
     """Retrieve a single job application by its id.
 
