@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Query
 
-from models import JobApplication, JobApplicationCreate, JobApplicationUpdate, ApplicationStatus
+from models import JobApplication, JobApplicationCreate, JobApplicationUpdate, ApplicationStatus, ApplicationSummary
 import services
 
 router = APIRouter(prefix="/applications", tags=["applications"])
@@ -16,6 +16,17 @@ def list_applications(status: ApplicationStatus | None = Query(default=None, des
     if status:
         return services.get_applications_by_status(services.get_all_applications(), status)
     return services.get_all_applications()
+
+
+@router.get("/summary", response_model=ApplicationSummary)
+def get_summary():
+    """Get a summary of all job applications.
+
+    Returns:
+        ApplicationSummary with total count, status breakdown,
+        and key metrics (response rate, success rate, rejection rate).
+    """
+    return services.get_application_summary()
 
 
 @router.get("/search", response_model=list[JobApplication])

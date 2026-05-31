@@ -35,3 +35,12 @@ class JobApplication(BaseModel):
     status: ApplicationStatus
     applied_date: date
     notes: Optional[str] = None
+
+
+class ApplicationSummary(BaseModel):
+    total: int
+    by_status: dict[str, int]
+    response_rate: float
+    success_rate: float
+    rejection_rate: float
+    most_recent: JobApplication | None

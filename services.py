@@ -136,3 +136,42 @@ def get_applications_by_status(apps: list[JobApplication], status: ApplicationSt
         if app.status == status:
             result.append(app)
     return result
+
+
+def get_application_summary() -> dict:
+    """Generate a summary of all job applications.
+
+    Returns:
+        A dictionary containing total count, status breakdown,
+        response rate, success rate, rejection rate, and most recent application.
+    """
+    total = len(_applications)
+    if total == 0:
+        return {
+            "total": 0,
+            "by_status": {status.value: 0 for status in ApplicationStatus},
+            "response_rate": 0.0,
+            "success_rate": 0.0,
+            "rejection_rate": 0.0,
+            "most_recent": None,
+        }
+
+    by_status = {status.value: 0 for status in ApplicationStatus}
+    for app in _applications:
+        by_status[app.status.value] += 1
+
+    responded = by_status["interviewing"] + by_status["offer"] + by_status["rejected"]
+    response_rate = responded / total if total > 0 else 0.0
+    success_rate = by_status["offer"] / total if total > 0 else 0.0
+    rejection_rate = by_status["rejected"] / total if total > 0 else 0.0
+
+    most_recent = max(_applications, key=lambda app: app.applied_date)
+
+    return {
+        "total": total,
+        "by_status": by_status,
+        "response_rate": round(response_rate * 100, 2),
+        "success_rate": round(success_rate * 100, 2),
+        "rejection_rate": round(rejection_rate * 100, 2),
+        "most_recent": most_recent,
+    }
