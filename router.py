@@ -26,6 +26,14 @@ def get_application(application_id: int):
     return app
 
 
+@router.get("/status/{status}", response_model=list[JobApplication])
+def get_applications_by_status(status: ApplicationStatus):
+    applications = services.get_applications_by_status(services.get_all_applications(), status)
+    if not applications:
+        raise HTTPException(status_code=404, detail="No applications found with this status")
+    return applications
+
+
 @router.put("/{application_id}", response_model=JobApplication)
 def update_application(application_id: int, data: JobApplicationUpdate):
     app = services.update_application(application_id, data)
