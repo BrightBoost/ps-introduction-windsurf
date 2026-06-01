@@ -11,10 +11,16 @@ def create_application(data: JobApplicationCreate):
     return services.create_application(data)
 
 @router.get("/", response_model=list[JobApplication])
-def list_applications(status: ApplicationStatus | None = Query(default=None, description="Filter by application status")):
+def list_applications(status: ApplicationStatus | None = Query(default=None, description="Filter by application status"), favorite: bool | None = Query(default=None, description="Filter by favorite status")):
+    applications = services.get_all_applications()
+    
     if status:
-        return services.get_applications_by_status(services.get_all_applications(), status)
-    return services.get_all_applications()
+        applications = services.get_applications_by_status(applications, status)
+    
+    if favorite is not None:
+        applications = [app for app in applications if app.favorite == favorite]
+    
+    return applications
 
 
 @router.get("/summary", response_model=ApplicationSummary)
@@ -26,6 +32,7 @@ def get_summary():
         and key metrics (response rate, success rate, rejection rate).
     """
     return services.get_application_summary()
+
 
 
 @router.get("/search", response_model=list[JobApplication])
@@ -69,3 +76,4 @@ def update_application(application_id: int, data: JobApplicationUpdate):
 def delete_application(application_id: int):
     if not services.delete_application(application_id):
         raise HTTPException(status_code=404, detail="Application not found")
+
