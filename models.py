@@ -19,6 +19,7 @@ class JobApplicationCreate(BaseModel):
     applied_date: date
     notes: Optional[str] = None
     favorite: bool = False
+    rank: Optional[int] = None
 
 
 class JobApplicationUpdate(BaseModel):
@@ -28,6 +29,7 @@ class JobApplicationUpdate(BaseModel):
     applied_date: Optional[date] = None
     notes: Optional[str] = None
     favorite: Optional[bool] = None
+    rank: Optional[int] = None
 
 
 class JobApplication(BaseModel):
@@ -38,6 +40,7 @@ class JobApplication(BaseModel):
     applied_date: date
     notes: Optional[str] = None
     favorite: bool = False
+    rank: Optional[int] = None
 
 
 class ApplicationSummary(BaseModel):

@@ -1,3 +1,5 @@
+from datetime import date
+
 from fastapi import APIRouter, HTTPException, Query
 
 from models import JobApplication, JobApplicationCreate, JobApplicationUpdate, ApplicationStatus, ApplicationSummary
@@ -11,15 +13,23 @@ def create_application(data: JobApplicationCreate):
     return services.create_application(data)
 
 @router.get("/", response_model=list[JobApplication])
-def list_applications(status: ApplicationStatus | None = Query(default=None, description="Filter by application status"), favorite: bool | None = Query(default=None, description="Filter by favorite status")):
+def list_applications(
+    status: ApplicationStatus | None = Query(default=None, description="Filter by application status"),
+    favorite: bool | None = Query(default=None, description="Filter by favorite status"),
+    start_date: date | None = Query(default=None, description="Filter applications from this date (inclusive)"),
+    end_date: date | None = Query(default=None, description="Filter applications up to this date (inclusive)"),
+):
     applications = services.get_all_applications()
-    
+
     if status:
         applications = services.get_applications_by_status(applications, status)
-    
+
     if favorite is not None:
         applications = [app for app in applications if app.favorite == favorite]
-    
+
+    if start_date is not None or end_date is not None:
+        applications = services.filter_applications_by_date(applications, start_date, end_date)
+
     return applications
 
 
@@ -95,4 +105,36 @@ def toggle_favorite(application_id: int):
     if app is None:
         raise HTTPException(status_code=404, detail="Application not found")
     return app
+
+
+@router.post("/{application_id}/rank", response_model=JobApplication)
+def set_rank(application_id: int, rank: int = Query(..., description="Rank to assign (lower numbers indicate higher priority)", ge=1)):
+    """Set the rank of a job application.
+
+    Args:
+        application_id: The unique identifier of the application.
+        rank: The rank to assign (lower numbers indicate higher priority).
+
+    Returns:
+        The updated JobApplication with the new rank.
+
+    Raises:
+        HTTPException: If the application is not found.
+    """
+    app = services.set_rank(application_id, rank)
+    if app is None:
+        raise HTTPException(status_code=404, detail="Application not found")
+    return app
+
+
+@router.get("/sorted/by-rank", response_model=list[JobApplication])
+def get_applications_sorted_by_rank():
+    """Retrieve all job applications sorted by rank.
+
+    Returns:
+        A list of JobApplication objects sorted by rank.
+        Ranked applications appear first in ascending order,
+        followed by unranked applications.
+    """
+    return services.get_applications_sorted_by_rank()
 

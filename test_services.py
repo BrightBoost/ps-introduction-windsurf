@@ -269,3 +269,140 @@ def test_get_application_summary_empty_list():
     assert summary["success_rate"] == 0.0
     assert summary["rejection_rate"] == 0.0
     assert summary["most_recent"] is None
+
+
+def test_set_rank_updates_application_rank():
+    data = JobApplicationCreate(
+        company="TechCorp",
+        role="Software Engineer",
+        status=ApplicationStatus.applied,
+        applied_date=date(2024, 1, 15)
+    )
+    app = services.create_application(data)
+
+    result = services.set_rank(app.id, 3)
+
+    assert result is not None
+    assert result.rank == 3
+    assert services._applications[0].rank == 3
+
+
+def test_set_rank_returns_none_if_not_found():
+    result = services.set_rank(999, 1)
+
+    assert result is None
+
+
+def test_get_applications_sorted_by_rank_returns_ranked_first():
+    apps = [
+        JobApplicationCreate(
+            company="Company A",
+            role="Role A",
+            status=ApplicationStatus.applied,
+            applied_date=date(2024, 1, 1),
+            rank=2
+        ),
+        JobApplicationCreate(
+            company="Company B",
+            role="Role B",
+            status=ApplicationStatus.interviewing,
+            applied_date=date(2024, 1, 2),
+            rank=1
+        ),
+        JobApplicationCreate(
+            company="Company C",
+            role="Role C",
+            status=ApplicationStatus.applied,
+            applied_date=date(2024, 1, 3)
+        ),
+        JobApplicationCreate(
+            company="Company D",
+            role="Role D",
+            status=ApplicationStatus.offer,
+            applied_date=date(2024, 1, 4),
+            rank=3
+        ),
+    ]
+    created_apps = [services.create_application(app) for app in apps]
+
+    sorted_apps = services.get_applications_sorted_by_rank()
+
+    assert len(sorted_apps) == 4
+    assert sorted_apps[0].company == "Company B"
+    assert sorted_apps[0].rank == 1
+    assert sorted_apps[1].company == "Company A"
+    assert sorted_apps[1].rank == 2
+    assert sorted_apps[2].company == "Company D"
+    assert sorted_apps[2].rank == 3
+    assert sorted_apps[3].company == "Company C"
+    assert sorted_apps[3].rank is None
+
+
+def test_get_applications_sorted_by_rank_empty_list():
+    result = services.get_applications_sorted_by_rank()
+
+    assert result == []
+
+
+def test_filter_applications_by_start_date_returns_on_or_after():
+    apps = [
+        JobApplicationCreate(company="A", role="R", status=ApplicationStatus.applied, applied_date=date(2026, 1, 1)),
+        JobApplicationCreate(company="B", role="R", status=ApplicationStatus.applied, applied_date=date(2026, 3, 15)),
+        JobApplicationCreate(company="C", role="R", status=ApplicationStatus.applied, applied_date=date(2026, 6, 30)),
+    ]
+    created = [services.create_application(app) for app in apps]
+
+    result = services.filter_applications_by_date(services._applications, start_date=date(2026, 3, 15))
+
+    assert len(result) == 2
+    assert created[1] in result
+    assert created[2] in result
+
+
+def test_filter_applications_by_end_date_returns_on_or_before():
+    apps = [
+        JobApplicationCreate(company="A", role="R", status=ApplicationStatus.applied, applied_date=date(2026, 1, 1)),
+        JobApplicationCreate(company="B", role="R", status=ApplicationStatus.applied, applied_date=date(2026, 3, 15)),
+        JobApplicationCreate(company="C", role="R", status=ApplicationStatus.applied, applied_date=date(2026, 6, 30)),
+    ]
+    created = [services.create_application(app) for app in apps]
+
+    result = services.filter_applications_by_date(services._applications, end_date=date(2026, 3, 15))
+
+    assert len(result) == 2
+    assert created[0] in result
+    assert created[1] in result
+
+
+def test_filter_applications_by_date_range_returns_within_range():
+    apps = [
+        JobApplicationCreate(company="A", role="R", status=ApplicationStatus.applied, applied_date=date(2026, 1, 1)),
+        JobApplicationCreate(company="B", role="R", status=ApplicationStatus.applied, applied_date=date(2026, 3, 15)),
+        JobApplicationCreate(company="C", role="R", status=ApplicationStatus.applied, applied_date=date(2026, 6, 30)),
+    ]
+    created = [services.create_application(app) for app in apps]
+
+    result = services.filter_applications_by_date(
+        services._applications, start_date=date(2026, 2, 1), end_date=date(2026, 5, 1)
+    )
+
+    assert len(result) == 1
+    assert created[1] in result
+
+
+def test_filter_applications_by_date_no_params_returns_all():
+    apps = [
+        JobApplicationCreate(company="A", role="R", status=ApplicationStatus.applied, applied_date=date(2026, 1, 1)),
+        JobApplicationCreate(company="B", role="R", status=ApplicationStatus.applied, applied_date=date(2026, 6, 30)),
+    ]
+    created = [services.create_application(app) for app in apps]
+
+    result = services.filter_applications_by_date(services._applications)
+
+    assert result == created
+
+
+def test_filter_applications_by_date_empty_list_returns_empty():
+    result = services.filter_applications_by_date([], start_date=date(2026, 1, 1), end_date=date(2026, 12, 31))
+
+    assert result == []

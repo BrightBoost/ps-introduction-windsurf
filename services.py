@@ -1,3 +1,5 @@
+from datetime import date
+
 from models import JobApplication, JobApplicationCreate, JobApplicationUpdate, ApplicationStatus
 
 _applications: list[JobApplication] = []
@@ -27,6 +29,29 @@ def get_all_applications() -> list[JobApplication]:
         A list of all stored JobApplication objects.
     """
     return _applications
+
+
+def filter_applications_by_date(
+    apps: list[JobApplication],
+    start_date: date | None = None,
+    end_date: date | None = None,
+) -> list[JobApplication]:
+    """Filter job applications by an optional date range on applied_date.
+
+    Args:
+        apps: The list of JobApplication objects to filter.
+        start_date: If provided, only applications on or after this date are included.
+        end_date: If provided, only applications on or before this date are included.
+
+    Returns:
+        A filtered list of JobApplication objects matching the date range.
+    """
+    result = apps
+    if start_date is not None:
+        result = [app for app in result if app.applied_date >= start_date]
+    if end_date is not None:
+        result = [app for app in result if app.applied_date <= end_date]
+    return result
 
 
 def search_applications(query: str) -> list[JobApplication]:
@@ -90,6 +115,38 @@ def toggle_favorite(application_id: int) -> JobApplication | None:
             _applications[i] = updated
             return updated
     return None
+
+
+def set_rank(application_id: int, rank: int) -> JobApplication | None:
+    """Set the rank of a job application.
+
+    Args:
+        application_id: The unique identifier of the application.
+        rank: The rank to assign (lower numbers indicate higher priority).
+
+    Returns:
+        The updated JobApplication with the new rank, or None if not found.
+    """
+    for i, app in enumerate(_applications):
+        if app.id == application_id:
+            updated = app.model_copy(update={"rank": rank})
+            _applications[i] = updated
+            return updated
+    return None
+
+
+def get_applications_sorted_by_rank() -> list[JobApplication]:
+    """Retrieve all job applications sorted by rank.
+
+    Returns:
+        A list of all stored JobApplication objects sorted by rank.
+        Ranked applications (with rank value) appear first in ascending order,
+        followed by unranked applications.
+    """
+    ranked = [app for app in _applications if app.rank is not None]
+    unranked = [app for app in _applications if app.rank is None]
+    ranked.sort(key=lambda app: app.rank)
+    return ranked + unranked
 
 
 def delete_application(application_id: int) -> bool:

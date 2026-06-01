@@ -1,0 +1,179 @@
+{
+  "info": {
+    "name": "Application Tracker",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000"
+    }
+  ],
+  "item": [
+    {
+      "name": "Create Application",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/applications",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"company\": \"Acme Corp\",\n  \"role\": \"Software Engineer\",\n  \"status\": \"applied\",\n  \"applied_date\": \"2026-03-15\",\n  \"notes\": \"Exciting opportunity\",\n  \"favorite\": false\n}"
+        }
+      }
+    },
+    {
+      "name": "List All Applications",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/applications"
+      }
+    },
+    {
+      "name": "Filter by Start Date",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/applications?start_date=2026-01-01",
+          "host": ["{{base_url}}"],
+          "path": ["applications"],
+          "query": [{ "key": "start_date", "value": "2026-01-01" }]
+        }
+      }
+    },
+    {
+      "name": "Filter by End Date",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/applications?end_date=2026-06-30",
+          "host": ["{{base_url}}"],
+          "path": ["applications"],
+          "query": [{ "key": "end_date", "value": "2026-06-30" }]
+        }
+      }
+    },
+    {
+      "name": "Filter by Date Range",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/applications?start_date=2026-01-01&end_date=2026-06-30",
+          "host": ["{{base_url}}"],
+          "path": ["applications"],
+          "query": [
+            { "key": "start_date", "value": "2026-01-01" },
+            { "key": "end_date", "value": "2026-06-30" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Filter by Status",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/applications?status=applied",
+          "host": ["{{base_url}}"],
+          "path": ["applications"],
+          "query": [{ "key": "status", "value": "applied" }]
+        }
+      }
+    },
+    {
+      "name": "Filter by Favorite",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/applications?favorite=true",
+          "host": ["{{base_url}}"],
+          "path": ["applications"],
+          "query": [{ "key": "favorite", "value": "true" }]
+        }
+      }
+    },
+    {
+      "name": "Invalid Date (expect 422)",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/applications?start_date=not-a-date",
+          "host": ["{{base_url}}"],
+          "path": ["applications"],
+          "query": [{ "key": "start_date", "value": "not-a-date" }]
+        }
+      }
+    },
+    {
+      "name": "Get Application by ID",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/applications/1"
+      }
+    },
+    {
+      "name": "Update Application",
+      "request": {
+        "method": "PUT",
+        "url": "{{base_url}}/applications/1",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"interviewing\",\n  \"notes\": \"Had a great first call\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Delete Application",
+      "request": {
+        "method": "DELETE",
+        "url": "{{base_url}}/applications/1"
+      }
+    },
+    {
+      "name": "Toggle Favorite",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/applications/1/favorite"
+      }
+    },
+    {
+      "name": "Set Rank",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{base_url}}/applications/1/rank?rank=2",
+          "host": ["{{base_url}}"],
+          "path": ["applications", "1", "rank"],
+          "query": [{ "key": "rank", "value": "2" }]
+        }
+      }
+    },
+    {
+      "name": "Get Applications Sorted by Rank",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/applications/sorted/by-rank"
+      }
+    },
+    {
+      "name": "Search Applications",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/applications/search?q=acme",
+          "host": ["{{base_url}}"],
+          "path": ["applications", "search"],
+          "query": [{ "key": "q", "value": "acme" }]
+        }
+      }
+    },
+    {
+      "name": "Get Summary",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/applications/summary"
+      }
+    }
+  ]
+}
