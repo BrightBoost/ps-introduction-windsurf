@@ -77,3 +77,22 @@ def delete_application(application_id: int):
     if not services.delete_application(application_id):
         raise HTTPException(status_code=404, detail="Application not found")
 
+
+@router.post("/{application_id}/favorite", response_model=JobApplication)
+def toggle_favorite(application_id: int):
+    """Toggle the favorite status of a job application.
+
+    Args:
+        application_id: The unique identifier of the application.
+
+    Returns:
+        The updated JobApplication with toggled favorite status.
+
+    Raises:
+        HTTPException: If the application is not found.
+    """
+    app = services.toggle_favorite(application_id)
+    if app is None:
+        raise HTTPException(status_code=404, detail="Application not found")
+    return app
+

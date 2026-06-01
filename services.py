@@ -75,6 +75,23 @@ def update_application(application_id: int, data: JobApplicationUpdate) -> JobAp
     return None
 
 
+def toggle_favorite(application_id: int) -> JobApplication | None:
+    """Toggle the favorite status of a job application.
+
+    Args:
+        application_id: The unique identifier of the application.
+
+    Returns:
+        The updated JobApplication with toggled favorite status, or None if not found.
+    """
+    for i, app in enumerate(_applications):
+        if app.id == application_id:
+            updated = app.model_copy(update={"favorite": not app.favorite})
+            _applications[i] = updated
+            return updated
+    return None
+
+
 def delete_application(application_id: int) -> bool:
     """Delete a job application by its id.
 
